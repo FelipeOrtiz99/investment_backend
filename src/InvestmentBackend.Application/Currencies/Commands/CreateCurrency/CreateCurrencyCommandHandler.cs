@@ -15,12 +15,7 @@ public class CreateCurrencyCommandHandler : IRequestHandler<CreateCurrencyComman
 
     public async Task<Currency> Handle(CreateCurrencyCommand request, CancellationToken cancellationToken)
     {
-        var currency = new Currency
-        {
-            Id = Guid.NewGuid().ToString(),
-            Name = request.Name,
-            CurrencyCode = request.CurrencyCode
-        };
+        var currency = new Currency(request.Name, request.CurrencyCode);
         
         return await _currencyRepository.CreateAsync(currency, cancellationToken);
     }

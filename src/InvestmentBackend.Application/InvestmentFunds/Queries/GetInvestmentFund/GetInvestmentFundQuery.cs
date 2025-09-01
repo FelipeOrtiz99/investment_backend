@@ -8,7 +8,7 @@ public record InvestmentFundDto(
     string Id,
     string Name,
     string Category,
-    int CurrencyId,
+    string CurrencyId,
     decimal MinInvestment,
     bool IsActive
 );

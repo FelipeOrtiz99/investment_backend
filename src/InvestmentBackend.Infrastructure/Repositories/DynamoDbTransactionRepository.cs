@@ -48,15 +48,12 @@ public class DynamoDbTransactionRepository : ITransactionRepository
         return await scan.GetRemainingAsync(cancellationToken);
     }
 
-    public async Task<IEnumerable<Transaction>> GetByStatusAsync(string status, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<Transaction>> GetByStatusAsync(bool status, CancellationToken cancellationToken = default)
     {
-        var conditions = new List<ScanCondition>
-        {
-            new("Status", Amazon.DynamoDBv2.DocumentModel.ScanOperator.Equal, status)
-        };
         
-        var scan = _dynamoDbContext.ScanAsync<Transaction>(conditions);
-        return await scan.GetRemainingAsync(cancellationToken);
+        var scan = _dynamoDbContext.ScanAsync<Transaction>(new List<ScanCondition>());
+        var result =  await scan.GetRemainingAsync(cancellationToken);
+        return result.Where(x => x.Status == status);
     }
 
     public async Task<IEnumerable<Transaction>> GetByDateRangeAsync(DateTime startDate, DateTime endDate, CancellationToken cancellationToken = default)

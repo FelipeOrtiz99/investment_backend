@@ -2,25 +2,25 @@ using Amazon.DynamoDBv2.DataModel;
 
 namespace InvestmentBackend.Domain.Entities;
 
-[DynamoDBTable("Investments")]
+[DynamoDBTable("InvestmentsFund")]
 public class InvestmentFund
 {
-    [DynamoDBHashKey]
+    [DynamoDBHashKey("id")]
     public string Id { get; set; } = Guid.NewGuid().ToString();
 
-    [DynamoDBProperty]
+    [DynamoDBProperty("name")]
     public string Name { get; set; } = string.Empty;
 
-    [DynamoDBProperty]
+    [DynamoDBProperty("category")]
     public string Category { get; set; } = string.Empty;
 
-    [DynamoDBProperty]
-    public int CurrencyId { get; set; }
+    [DynamoDBProperty("currency_id")]
+    public string CurrencyId { get; set; } = string.Empty;
 
-    [DynamoDBProperty]
+    [DynamoDBProperty("min_investment")]
     public decimal MinInvestment { get; set; }
 
-    [DynamoDBProperty]
+    [DynamoDBProperty("state")]
     public bool IsActive { get; set; } = true;
 
 }

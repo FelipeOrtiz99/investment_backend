@@ -19,7 +19,15 @@ public class DynamoDbCurrencyRepository : ICurrencyRepository
 
     public async Task<Currency?> GetByIdAsync(string id, CancellationToken cancellationToken = default)
     {
-        return await _dynamoDbContext.LoadAsync<Currency>(id, cancellationToken);
+        try
+        {
+            return await _dynamoDbContext.LoadAsync<Currency>(id, cancellationToken);
+        }
+        catch (ResourceNotFoundException)
+        {
+            await EnsureTableExistsAsync();
+            return await _dynamoDbContext.LoadAsync<Currency>(id, cancellationToken);
+        }
     }
 
     public async Task<IEnumerable<Currency>> GetAllAsync(CancellationToken cancellationToken = default)
@@ -39,37 +47,87 @@ public class DynamoDbCurrencyRepository : ICurrencyRepository
 
     public async Task<Currency?> GetByCodeAsync(string code, CancellationToken cancellationToken = default)
     {
-        var conditions = new List<ScanCondition>
+        try
         {
-            new("CurrencyCode", Amazon.DynamoDBv2.DocumentModel.ScanOperator.Equal, code)
-        };
-        
-        var scan = _dynamoDbContext.ScanAsync<Currency>(conditions);
-        var currencies = await scan.GetRemainingAsync(cancellationToken);
-        return currencies.FirstOrDefault();
+            var conditions = new List<ScanCondition>
+            {
+                new("CurrencyCode", Amazon.DynamoDBv2.DocumentModel.ScanOperator.Equal, code)
+            };
+            
+            var scan = _dynamoDbContext.ScanAsync<Currency>(conditions);
+            var currencies = await scan.GetRemainingAsync(cancellationToken);
+            return currencies.FirstOrDefault();
+        }
+        catch (ResourceNotFoundException)
+        {
+            await EnsureTableExistsAsync();
+            var conditions = new List<ScanCondition>
+            {
+                new("CurrencyCode", Amazon.DynamoDBv2.DocumentModel.ScanOperator.Equal, code)
+            };
+            
+            var scan = _dynamoDbContext.ScanAsync<Currency>(conditions);
+            var currencies = await scan.GetRemainingAsync(cancellationToken);
+            return currencies.FirstOrDefault();
+        }
     }
 
     public async Task<Currency> CreateAsync(Currency currency, CancellationToken cancellationToken = default)
     {
-        await _dynamoDbContext.SaveAsync(currency, cancellationToken);
-        return currency;
+        try
+        {
+            await _dynamoDbContext.SaveAsync(currency, cancellationToken);
+            return currency;
+        }
+        catch (ResourceNotFoundException)
+        {
+            await EnsureTableExistsAsync();
+            await _dynamoDbContext.SaveAsync(currency, cancellationToken);
+            return currency;
+        }
     }
 
     public async Task<Currency> UpdateAsync(Currency currency, CancellationToken cancellationToken = default)
     {
-        await _dynamoDbContext.SaveAsync(currency, cancellationToken);
-        return currency;
+        try
+        {
+            await _dynamoDbContext.SaveAsync(currency, cancellationToken);
+            return currency;
+        }
+        catch (ResourceNotFoundException)
+        {
+            await EnsureTableExistsAsync();
+            await _dynamoDbContext.SaveAsync(currency, cancellationToken);
+            return currency;
+        }
     }
 
     public async Task DeleteAsync(string id, CancellationToken cancellationToken = default)
     {
-        await _dynamoDbContext.DeleteAsync<Currency>(id, cancellationToken);
+        try
+        {
+            await _dynamoDbContext.DeleteAsync<Currency>(id, cancellationToken);
+        }
+        catch (ResourceNotFoundException)
+        {
+            await EnsureTableExistsAsync();
+            await _dynamoDbContext.DeleteAsync<Currency>(id, cancellationToken);
+        }
     }
 
     public async Task<bool> ExistsAsync(string id, CancellationToken cancellationToken = default)
     {
-        var currency = await _dynamoDbContext.LoadAsync<Currency>(id, cancellationToken);
-        return currency != null;
+        try
+        {
+            var currency = await _dynamoDbContext.LoadAsync<Currency>(id, cancellationToken);
+            return currency != null;
+        }
+        catch (ResourceNotFoundException)
+        {
+            await EnsureTableExistsAsync();
+            var currency = await _dynamoDbContext.LoadAsync<Currency>(id, cancellationToken);
+            return currency != null;
+        }
     }
 
     private async Task EnsureTableExistsAsync()
@@ -99,15 +157,19 @@ public class DynamoDbCurrencyRepository : ICurrencyRepository
                         AttributeType = ScalarAttributeType.S
                     }
                 },
-                ProvisionedThroughput = new ProvisionedThroughput
-                {
-                    ReadCapacityUnits = 5,
-                    WriteCapacityUnits = 5
-                }
+                BillingMode = BillingMode.PAY_PER_REQUEST
             };
 
             await _dynamoDbClient.CreateTableAsync(createTableRequest);
-            await Task.Delay(5000);
+
+            // Esperar a que la tabla esté activa
+            var tableStatus = TableStatus.CREATING;
+            while (tableStatus == TableStatus.CREATING)
+            {
+                await Task.Delay(1000);
+                var tableDescription = await _dynamoDbClient.DescribeTableAsync("Currencies");
+                tableStatus = tableDescription.Table.TableStatus;
+            }
         }
     }
 }

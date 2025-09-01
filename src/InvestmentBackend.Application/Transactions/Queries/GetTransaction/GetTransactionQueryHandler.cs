@@ -24,7 +24,10 @@ public class GetTransactionQueryHandler : IRequestHandler<GetTransactionQuery, T
             transaction.IdClient,
             transaction.CurrencyId,
             transaction.Amount,
-            transaction.Status
+            transaction.Status,
+            transaction.WalletId,
+            transaction.Description,
+            transaction.InvestmentFundId
         );
     }
 }
