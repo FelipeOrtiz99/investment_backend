@@ -13,6 +13,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvestmentBackend.Infrastru
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InvestmentBackend.WebApi", "src\InvestmentBackend.WebApi\InvestmentBackend.WebApi.csproj", "{D0ECE05D-6780-4513-A661-B65F2E7FD14A}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{B1453F0C-DD3E-406F-BB45-8CEB610741C2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -80,5 +84,8 @@ Global
 		{8FDB7292-4813-4081-A550-59F5A9C3C00A} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{FCAA9DE5-B7B6-4548-9772-6E209387F377} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{D0ECE05D-6780-4513-A661-B65F2E7FD14A} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C6F0BF2C-26A8-42FE-9082-9C1172D648F9}
 	EndGlobalSection
 EndGlobal

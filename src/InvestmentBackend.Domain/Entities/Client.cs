@@ -11,6 +11,9 @@ public class Client
     [DynamoDBProperty("name")]
     public string? Name { get; set; }
 
+    [DynamoDBProperty("email")]
+    public string? Email { get; set; }
+
     [DynamoDBProperty("state")]
     public bool State { get; set; }
 
@@ -24,10 +27,11 @@ public class Client
     }
 
     // Constructor con parámetros para la lógica de negocio
-    public Client(string id, string name, bool state)
+    public Client(string id, string name, bool state, string? email = null)
     {
         Id = id ?? Guid.NewGuid().ToString();
         Name = name ?? string.Empty;
+        Email = email;
         State = state;
     }
 
@@ -38,6 +42,14 @@ public class Client
             throw new ArgumentException("Name cannot be empty", nameof(name));
         
         Name = name;
+    }
+
+    public void UpdateEmail(string email)
+    {
+        if (string.IsNullOrWhiteSpace(email))
+            throw new ArgumentException("Email cannot be empty", nameof(email));
+        
+        Email = email;
     }
 
     public void Activate()

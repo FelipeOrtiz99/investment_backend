@@ -6,6 +6,6 @@ namespace InvestmentBackend.Application.InvestmentFunds.Commands.CreateInvestmen
 public record CreateInvestmentFundCommand(
     string Name,
     string Category,
-    int CurrencyId,
+    string CurrencyId,
     decimal MinInvestment
 ) : IRequest<InvestmentFund>;
